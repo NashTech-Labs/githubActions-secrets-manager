@@ -1,0 +1,75 @@
+name: Retrieve Secrets from AWS Secrets Manager 
+
+  
+
+on: 
+
+  push: 
+
+    branches: 
+
+      - main 
+
+  
+
+env: 
+
+  AWS_REGION: us-east-1 
+
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+
+  
+
+jobs: 
+
+  retrieve-secrets: 
+
+    runs-on: ubuntu-latest 
+
+  
+
+    steps: 
+
+      - name: Checkout repository 
+
+        uses: actions/checkout@v2 
+
+  
+
+      - name: Configure AWS credentials 
+
+        uses: aws-actions/configure-aws-credentials@v1 
+
+        with: 
+
+          aws-region: ${{ env.AWS_REGION }} 
+
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }} 
+
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }} 
+
+  
+
+      - name: Retrieve Secrets 
+
+        id: secrets 
+
+        run: | 
+
+          echo "::set-output name=secret1::$(aws secretsmanager get-secret-value --secret-id MySecret1 --query 'SecretString' --output text)" 
+
+          echo "::set-output name=secret2::$(aws secretsmanager get-secret-value --secret-id MySecret2 --query 'SecretString' --output text)" 
+
+  
+
+      - name: Use Secrets 
+
+        run: | 
+
+          echo "Secret 1: ${{ steps.secrets.outputs.secret1 }}" 
+
+          echo "Secret 2: ${{ steps.secrets.outputs.secret2 }}" 
+
+
